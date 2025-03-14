@@ -1,0 +1,31 @@
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_SYNC_LIMIT: 2
+
+  kafka:
+    image: wurstmeister/kafka
+    
+    container_name: kafka
+    ports:
+      - "9092:9092"  # External port for clients to connect
+      - "9093:9093"  # Internal communication (for inside Docker networks)
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092  # What clients will use to connect to Kafka
+      KAFKA_LISTENER_SECURITY_PROTOCOL: PLAINTEXT
+      KAFKA_LISTENER_NAMES: PLAINTEXT,INSIDE
+      KAFKA_LISTENER_PORT: 9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_LISTENER_INTERFACES: INSIDE
+      KAFKA_LISTENER_INTERFACE: INSIDE
+      KAFKA_LISTENER_NAME_INSIDE: INSIDE
+      KAFKA_LISTENER_SECURITY_PROTOCOL_INSIDE: PLAINTEXT
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    depends_on:
+      - zookeeper
